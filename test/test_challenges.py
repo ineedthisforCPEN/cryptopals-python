@@ -73,3 +73,20 @@ class TestSet1(object):
         assert plaintext.to_string() == "Now that the party is jumping\n"
         assert key.to_string() == "5"
 
+    def test_challenge5(self) -> None:
+        """Encrypt the given phrase via XOR one time pad with a longer
+        key.
+        """
+        plaintext = String(
+            "Burning 'em, if you ain't quick and nimble\n" + \
+            "I go crazy when I hear a cymbal"
+        )
+        key = String("ICE")
+        expected = HexString(
+            "0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c" + \
+            "2a26226324272765272a282b2f20430a652e2c652a3124333a653e2b" + \
+            "2027630c692b20283165286326302e27282f"
+        )
+
+        assert plaintext ^ key == expected
+
