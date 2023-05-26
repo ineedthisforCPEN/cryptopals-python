@@ -5,6 +5,7 @@ utilities for various basic cryptography functions and data
 conversions.
 """
 
+import itertools
 import re
 
 from typing import Any
@@ -22,6 +23,25 @@ class BinData(object):
             raise TypeError(f"BinData cannot be initialized with '{dtype}' type")
 
         self._data = data
+
+    def __repr__(self) -> str:
+        return self.to_hexstring()
+
+    def __eq__(self, other: Any):
+        if isinstance(other, BinData):
+            return self._data == other._data
+        return False
+
+    def __ne__(self, other: Any):
+        return not self.__eq__(other)
+
+    def __xor__(self, other: Any) -> "BinData":
+        if not isinstance(other, BinData):
+            dtype = type(other).__name__
+            raise TypeError(f"Unsupported operand type(s) for ^: 'BinData' and '{dtype}'")
+
+        xored = bytes([x ^ y for x, y in zip(self._data, itertools.cycle(other._data))])
+        return BinData(xored)
 
     def to_base64(self) -> str:
         """Convert binary data to its base64 equivalent.
