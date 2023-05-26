@@ -7,8 +7,6 @@ import os.path
 import pytest
 import sys
 
-from typing import Any
-
 # Prepare for relative imports.
 ROOTDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(ROOTDIR)

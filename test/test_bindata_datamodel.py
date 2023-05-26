@@ -8,8 +8,6 @@ import os.path
 import pytest
 import sys
 
-from typing import Any
-
 # Prepare for relative imports.
 ROOTDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(ROOTDIR)
@@ -32,12 +30,12 @@ NOT_EQUALS = [
 
 class TestDataModel(object):
     @pytest.mark.parametrize("lhs, rhs", itertools.product(EQUALS, EQUALS))
-    def test_equals(self, lhs: BinData, rhs: Any) -> None:
+    def test_equals(self, lhs: BinData, rhs: object) -> None:
         assert lhs == rhs
         assert rhs == lhs
 
     @pytest.mark.parametrize("lhs, rhs", itertools.product(EQUALS, NOT_EQUALS))
-    def test_not_equals(self, lhs: BinData, rhs: Any) -> None:
+    def test_not_equals(self, lhs: BinData, rhs: object) -> None:
         assert lhs != rhs
         assert rhs != lhs
 

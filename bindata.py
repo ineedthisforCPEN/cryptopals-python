@@ -8,8 +8,6 @@ conversions.
 import itertools
 import re
 
-from typing import Any
-
 from constants import ALPHABET_BASE64
 
 
@@ -27,15 +25,15 @@ class BinData(object):
     def __repr__(self) -> str:
         return self.to_hexstring()
 
-    def __eq__(self, other: Any):
+    def __eq__(self, other: object):
         if isinstance(other, BinData):
             return self._data == other._data
         return False
 
-    def __ne__(self, other: Any):
+    def __ne__(self, other: object):
         return not self.__eq__(other)
 
-    def __xor__(self, other: Any) -> "BinData":
+    def __xor__(self, other: object) -> "BinData":
         if not isinstance(other, BinData):
             dtype = type(other).__name__
             raise TypeError(f"Unsupported operand type(s) for ^: 'BinData' and '{dtype}'")
