@@ -86,6 +86,8 @@ class Base64String(BinData):
             raw = 0
             for c in chunk:
                 raw = (raw << 6) | ALPHABET_BASE64.index(c)
+
+            raw >>= (8 - 2*len(chunk))
             binary += raw.to_bytes(len(chunk) - 1, "big")
 
         super().__init__(binary)

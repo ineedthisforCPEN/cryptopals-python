@@ -23,6 +23,9 @@ class TestBase64String(object):
         (b"\x00\x00",     "AAA="),
         (b"\x00\x00\x00", "AAAA"),
 
+        (b"\x21",         "IQ=="),
+        (b"\x21\x21",     "ISE="),
+
         # Test challenge 1.
         (
             b"I'm killing your brain like a poisonous mushroom",
