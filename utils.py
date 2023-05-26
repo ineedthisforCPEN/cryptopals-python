@@ -1,12 +1,34 @@
-"""algorithms.py
+"""utils.py
 
-Various algorithms for encrypting/decrypting data.
+Handy functions :)
 """
+
+import requests
 
 from collections.abc import Sequence
 
 from bindata import BinData
 from evaluators import evaluate_english
+
+
+def read_challenge_data(challenge: int) -> str:
+    """Download and read any associated data for a given challenge.
+
+    Parameters:
+        challenge   Cryptopals challenge number
+
+    Returns:
+        Returns the downloaded data as a string.
+    """
+    url = f"https://cryptopals.com/static/challenge-data/{challenge}.txt"
+    res = requests.get(url)
+
+    if res.status_code == 404:
+        raise RuntimeError(f"There is no data for challenge {challenge}")
+    elif res.status_code != 200:
+        raise requests.RequestException(f"Could not read data for challenge {challenge}")
+
+    return res.text
 
 
 def xor_otp_best_guess(

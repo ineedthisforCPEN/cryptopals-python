@@ -12,8 +12,9 @@ import sys
 ROOTDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(ROOTDIR)
 
-from algorithms import xor_otp_best_guess
 from bindata import Base64String, HexString, String
+from evaluators import evaluate_english
+from utils import read_challenge_data, xor_otp_best_guess
 
 
 class TestSet1(object):
@@ -38,7 +39,7 @@ class TestSet1(object):
         time pad with key length 1.
         """
         ciphertext = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
-        keys = [String(c) for c in string.ascii_letters]
+        keys = [String(c) for c in string.ascii_letters + string.digits]
         h = HexString(ciphertext)
 
         key, plaintext = xor_otp_best_guess(h, keys, method="english")
@@ -46,4 +47,29 @@ class TestSet1(object):
         assert plaintext is not None
         assert plaintext.to_string() == "Cooking MC's like a pound of bacon"
         assert key.to_string() == "X"
+
+    def test_challenge4(self) -> None:
+        """One of the 60-character strings provided has been encrypted
+        with a single-character XOR. Find it.
+        """
+        raw = read_challenge_data(4).strip()
+        ciphertext = [HexString(line) for line in raw.split("\n")]
+
+        candidates = []
+        keys = [String(c) for c in string.ascii_letters + string.digits]
+
+        for c in ciphertext:
+            key, plaintext = xor_otp_best_guess(c, keys, method="english")
+
+            if plaintext is None:
+                continue
+
+            score = evaluate_english(plaintext)
+            candidates.append((score, key, plaintext))
+
+        candidates.sort(key=lambda x: x[0], reverse=True)
+        _, key, plaintext = candidates[0]
+
+        assert plaintext.to_string() == "Now that the party is jumping\n"
+        assert key.to_string() == "5"
 
