@@ -28,6 +28,9 @@ class BinData(object):
     def __repr__(self) -> str:
         return self.to_hexstring()
 
+    def __str__(self) -> str:
+        return self._data.decode("ascii")
+
     def __eq__(self, other: object):
         if isinstance(other, BinData):
             return self._data == other._data
@@ -91,6 +94,18 @@ class BinData(object):
         """
         return "".join([f"{i:02X}" for i in self._data])
 
+    def to_string(self, encoding="ascii") -> str:
+        """Convert the data to its string equivalent with the
+        specified encoding type.
+
+        Parameters:
+            encoding    String encoding method (default: ascii)
+
+        Returns:
+            Returns the equivalent encoded string.
+        """
+        return self._data.decode("ascii")
+
 
 class Base64String(BinData):
     def __init__(self, data: str) -> None:
@@ -126,4 +141,8 @@ class HexString(BinData):
 
         super().__init__(binary)
 
+
+class String(BinData):
+    def __init__(self, data: str, encoding: str = "ascii") -> None:
+        super().__init__(data.encode(encoding))
 
