@@ -7,8 +7,11 @@ conversions.
 
 import itertools
 import re
+import string
 
-from constants import ALPHABET_BASE64
+
+ALPHABET_BASE64 = \
+    string.ascii_uppercase + string.ascii_lowercase + string.digits + "+/"
 
 
 class BinData(object):
