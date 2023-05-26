@@ -12,19 +12,21 @@ import sys
 ROOTDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(ROOTDIR)
 
-from bindata import BinData, Base64String, HexString
+from bindata import BinData, Base64String, HexString, String
 
 
 EQUALS = [
     BinData(b"Hello, World!"),
     Base64String("SGVsbG8sIFdvcmxkIQ=="),
     HexString("48656C6C6F2C20576F726C6421"),
+    String("Hello, World!"),
 ]
 
 NOT_EQUALS = [
     BinData(b"hello, world!"),
     Base64String("aGVsbG8sIHdvcmxkIQ=="),
     HexString("68656C6C6F2C20776F726C6421"),
+    String("hello, world!"),
 ]
 
 
@@ -63,5 +65,15 @@ class TestDataModel(object):
         e = HexString(expected)
 
         assert x1 ^ x2 == e
+
+    @pytest.mark.parametrize("bindata, length", [
+        (BinData(b"01234567"), 8),
+        (Base64String("01234567"), 6),
+        (HexString("01234567"), 4),
+        (String("01234567"), 8),
+    ])
+    def test_length(self, bindata: BinData, length: int) -> None:
+        assert len(bindata) == length
+
 
 

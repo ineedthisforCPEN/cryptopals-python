@@ -25,6 +25,9 @@ class BinData(object):
 
         self._data = data
 
+    def __len__(self) -> int:
+        return len(self._data)
+
     def __repr__(self) -> str:
         return self.to_hexstring()
 
