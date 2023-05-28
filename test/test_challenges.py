@@ -12,7 +12,7 @@ import sys
 ROOTDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(ROOTDIR)
 
-from bindata import Base64String, HexString, String
+from bindata import BinData, Base64String, HexString, String
 from evaluators import evaluate_english
 from utils import read_challenge_data, xor_otp_best_guess
 
@@ -89,4 +89,52 @@ class TestSet1(object):
         )
 
         assert plaintext ^ key == expected
+
+    def test_challenge6(self) -> None:
+        """Decrypt the given base64 string that's been encrypted with
+        repeating-key XOR one time pad.
+        """
+        raw = read_challenge_data(6).replace("\n", "")
+        ciphertext = Base64String(raw)
+
+        # Part 1
+        keymin = 2
+        keymax = 40
+
+        # Part 2
+        s1 = String("this is a test")
+        s2 = String("wokka wokka!!!")
+        
+        assert s1.hamming_distance(s2) == 37
+        assert s2.hamming_distance(s1) == 37
+
+        # Part 3
+        import pdb
+        normalized = []
+        for keysize in range(keymin, keymax + 1):
+            block1 = ciphertext[:keysize]
+            block2 = ciphertext[keysize:2*keysize]
+            norm = block1.hamming_distance(block2) / keysize
+
+            normalized.append((keysize, norm))
+
+        # Part 4
+        normalized.sort(key=lambda x: x[1])
+        keysize = normalized[0][0]
+
+        # Part 5 and 6
+        transposed = [BinData(b"") for _ in range(keysize)]
+        for i in range(len(ciphertext)):
+            transposed[i % keysize] += ciphertext[i]
+
+        # Part 7 and 8
+        encryption_key = BinData(b"")
+        keys = [String(c) for c in string.ascii_letters + string.digits]
+
+        for block in transposed:
+            key, plaintext = xor_otp_best_guess(block, keys)
+            print(key, plaintext.to_string())
+            encryption_key += key
+
+        assert encryption_key._data == b""
 

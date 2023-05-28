@@ -15,22 +15,21 @@ sys.path.append(ROOTDIR)
 from bindata import BinData, Base64String, HexString, String
 
 
-EQUALS = [
-    BinData(b"Hello, World!"),
-    Base64String("SGVsbG8sIFdvcmxkIQ=="),
-    HexString("48656C6C6F2C20576F726C6421"),
-    String("Hello, World!"),
-]
+class TestDataModelComparison(object):
+    EQUALS = [
+        BinData(b"Hello, World!"),
+        Base64String("SGVsbG8sIFdvcmxkIQ=="),
+        HexString("48656C6C6F2C20576F726C6421"),
+        String("Hello, World!"),
+    ]
 
-NOT_EQUALS = [
-    BinData(b"hello, world!"),
-    Base64String("aGVsbG8sIHdvcmxkIQ=="),
-    HexString("68656C6C6F2C20776F726C6421"),
-    String("hello, world!"),
-]
+    NOT_EQUALS = [
+        BinData(b"hello, world!"),
+        Base64String("aGVsbG8sIHdvcmxkIQ=="),
+        HexString("68656C6C6F2C20776F726C6421"),
+        String("hello, world!"),
+    ]
 
-
-class TestDataModel(object):
     @pytest.mark.parametrize("lhs, rhs", itertools.product(EQUALS, EQUALS))
     def test_equals(self, lhs: BinData, rhs: object) -> None:
         assert lhs == rhs
@@ -41,6 +40,8 @@ class TestDataModel(object):
         assert lhs != rhs
         assert rhs != lhs
 
+
+class TestDataModelNumeric(object):
     @pytest.mark.parametrize("xor1, xor2, expected", [
         # Basic tests.
         *[("00", f"0{c}", f"0{c}") for c in "0123456789ABCDEF"],
@@ -66,14 +67,24 @@ class TestDataModel(object):
 
         assert x1 ^ x2 == e
 
+
+class TestDataModelSequence(object):
+    def test_getitem(self) -> None:
+        original = "Hello, World!"
+        bindata = String(original)
+
+        for i in range(len(original)):
+            assert bindata[i] == String(original[i])
+
+        for i in range(2, len(original)):
+            assert bindata[0:i] == String(original[0:i])
+
     @pytest.mark.parametrize("bindata, length", [
         (BinData(b"01234567"), 8),
         (Base64String("01234567"), 6),
         (HexString("01234567"), 4),
         (String("01234567"), 8),
     ])
-    def test_length(self, bindata: BinData, length: int) -> None:
+    def test_len(self, bindata: BinData, length: int) -> None:
         assert len(bindata) == length
-
-
 

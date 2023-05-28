@@ -12,6 +12,7 @@ import string
 
 ALPHABET_BASE64 = \
     string.ascii_uppercase + string.ascii_lowercase + string.digits + "+/"
+BIT_COUNTS = bytes(bin(x).count("1") for x in range(256))
 
 
 class BinData(object):
@@ -25,15 +26,22 @@ class BinData(object):
 
         self._data = data
 
-    def __len__(self) -> int:
-        return len(self._data)
-
     def __repr__(self) -> str:
         return self.to_hexstring()
 
     def __str__(self) -> str:
         return self._data.decode("ascii")
 
+    ## Data mode - sequence.
+    def __len__(self) -> int:
+        return len(self._data)
+
+    def __getitem__(self, key: int|slice) -> "BinData":
+        if isinstance(key, int):
+            return BinData(bytes([self._data[key]]))
+        return BinData(self._data[key])
+
+    ## Data model - comparison.
     def __eq__(self, other: object):
         if isinstance(other, BinData):
             return self._data == other._data
@@ -41,6 +49,22 @@ class BinData(object):
 
     def __ne__(self, other: object):
         return not self.__eq__(other)
+
+    ## Data model - numeric operators.
+    def __add__(self, other: object) -> "BinData":
+        if not isinstance(other, BinData):
+            dtype = type(other).__name__
+            raise TypeError(f"Unsupported operand type(s) for +: 'BinData' and '{dtype}'")
+
+        return BinData(self._data + other._data)
+
+    def __iadd__(self, other: object) -> "BinData":
+        if not isinstance(other, BinData):
+            dtype = type(other).__name__
+            raise TypeError(f"Unsupported operand type(s) for +: 'BinData' and '{dtype}'")
+
+        self._data += other._data
+        return self
 
     def __xor__(self, other: object) -> "BinData":
         if not isinstance(other, BinData):
@@ -50,6 +74,25 @@ class BinData(object):
         xored = bytes([x ^ y for x, y in zip(self._data, itertools.cycle(other._data))])
         return BinData(xored)
 
+    ## Cryptogaphy methods.
+    def hamming_distance(self, other: "BinData") -> int:
+        """Calculate the Hamming distance between two chunks of data.
+        The two chunks must be the same size (in bytes).
+
+        Parameters:
+            other   Other BinData used to calculate Hamming distance
+
+        Returns:
+            Returns the Hamming distance between this object and the
+            'other' object.
+        """
+        if len(self._data) != len(other._data):
+            raise ValueError("Cannot calculate Hamming distance for BinData objects with different lengths.")
+
+        diff = self ^ other
+        return sum(BIT_COUNTS[d] for d in diff._data)
+
+    ## Convertsion methods.
     def to_base64(self) -> str:
         """Convert binary data to its base64 equivalent.
 
