@@ -42,6 +42,35 @@ class TestDataModelComparison(object):
 
 
 class TestDataModelNumeric(object):
+    @pytest.mark.parametrize("lhs, rhs, expected", [
+        (b"", b"", b""),
+        (b"one", b"", b"one"),
+        (b"", b"one", b"one"),
+        (b"one", b"one", b"oneone"),
+        (
+            bytes([i for i in range(256)]),
+            bytes([i for i in range(256)]),
+            2 * bytes([i for i in range(256)])
+        )
+    ])
+    def test_add(self, lhs: bytes, rhs: bytes, expected: bytes) -> None:
+        left = BinData(lhs)
+        right = BinData(rhs)
+        
+        assert left + right == BinData(expected)
+    
+    def test_iadd(self) -> None:
+        bindata = BinData(b"")
+        toadd = String("Hello, world!")
+
+        for i in range(len(toadd)):
+            bindata += toadd[i]
+
+            assert bindata[-1] == toadd[i]
+            assert bindata == toadd[:i+1]
+        
+        assert bindata == toadd
+
     @pytest.mark.parametrize("xor1, xor2, expected", [
         # Basic tests.
         *[("00", f"0{c}", f"0{c}") for c in "0123456789ABCDEF"],
@@ -73,9 +102,11 @@ class TestDataModelSequence(object):
         original = "Hello, World!"
         bindata = String(original)
 
+        # Test access by index.
         for i in range(len(original)):
             assert bindata[i] == String(original[i])
 
+        # Test access by slice.
         for i in range(2, len(original)):
             assert bindata[0:i] == String(original[0:i])
 
