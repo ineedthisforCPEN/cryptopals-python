@@ -14,7 +14,11 @@ sys.path.append(ROOTDIR)
 
 from bindata import BinData, Base64String, HexString, String
 from evaluators import evaluate_english
-from utils import read_challenge_data, xor_otp_best_guess
+from utils import (
+    read_challenge_data,
+    normalized_hamming_distances,
+    xor_otp_best_guess
+)
 
 
 class TestSet1(object):
@@ -104,19 +108,15 @@ class TestSet1(object):
         # Part 2
         s1 = String("this is a test")
         s2 = String("wokka wokka!!!")
-        
+
         assert s1.hamming_distance(s2) == 37
         assert s2.hamming_distance(s1) == 37
 
         # Part 3
-        import pdb
         normalized = []
         for keysize in range(keymin, keymax + 1):
-            block1 = ciphertext[:keysize]
-            block2 = ciphertext[keysize:2*keysize]
-            norm = block1.hamming_distance(block2) / keysize
-
-            normalized.append((keysize, norm))
+            score = normalized_hamming_distances(ciphertext, keysize)
+            normalized.append((keysize, score))
 
         # Part 4
         normalized.sort(key=lambda x: x[1])
@@ -129,12 +129,12 @@ class TestSet1(object):
 
         # Part 7 and 8
         encryption_key = BinData(b"")
-        keys = [String(c) for c in string.ascii_letters + string.digits]
+        keys = [String(c) for c in string.printable]
 
         for block in transposed:
-            key, plaintext = xor_otp_best_guess(block, keys)
-            print(key, plaintext.to_string())
+            key, _ = xor_otp_best_guess(block, keys)
             encryption_key += key
 
-        assert encryption_key._data == b""
-
+        assert encryption_key.to_string() == "Terminator X: Bring the noise"
+        # Decrypted message is WAAAAAAY too long to check here. But if the
+        # encryption key is correct, then the plaintext should be, too.
