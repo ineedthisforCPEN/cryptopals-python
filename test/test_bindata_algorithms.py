@@ -41,4 +41,3 @@ class TestAlgorithms(object):
             _ = h1.hamming_distance(h2)
         with pytest.raises(ValueError):
             _ = h2.hamming_distance(h1)
-

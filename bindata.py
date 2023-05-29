@@ -32,7 +32,7 @@ class BinData(object):
     def __str__(self) -> str:
         return self._data.decode("ascii")
 
-    ## Data mode - sequence.
+    ## Data model - sequence.
     def __len__(self) -> int:
         return len(self._data)
 
