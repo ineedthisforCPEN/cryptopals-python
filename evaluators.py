@@ -80,7 +80,7 @@ def evaluate_english(plaintext: BinData) -> float:
     for pair in c_double:
         score += SCORE_DOUBLE[pair.upper()] * c_double[pair]
         score += SCORE_PAIR[pair.upper()] * c_double[pair]
-    score *= c_lower / c_upper
+    score *= c_lower / max(c_upper, 1)
 
     return score
 
