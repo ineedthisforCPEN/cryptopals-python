@@ -31,6 +31,38 @@ def read_challenge_data(challenge: int) -> str:
     return res.text
 
 
+def normalized_hamming_distances(ciphertext: BinData, blocksize: int) -> float:
+    """Split the ciphertext into blocks of a given size, find the
+    hamming distance between all blocks, then normalize the sum of those
+    distances.
+
+    Parameters:
+        ciphertext  The ciphertext to analyze
+        blocksize   Size of the blocks to analyze
+
+    Returns:
+        Returns the normalized hamming distance.
+    """
+    if 2*blocksize > len(ciphertext):
+        raise ValueError(
+                f"Block size too large ({blocksize}). Max blocksize for " + \
+                f"this ciphertext is {len(ciphertext) // 2}"
+        )
+
+    blockcount = len(ciphertext) // blocksize - 1
+    blocks = [ciphertext[i*blocksize:(i+1)*blocksize] for i in range(blockcount)]
+    score = 0.0
+
+    for block in range(blockcount - 1):
+        score += blocks[block].hamming_distance(blocks[block+1])
+
+    # Normalize by block count so that we get the average hamming distance
+    # between each pair of blocks for which the distance was calculated.
+    # Normalize by block size as well so that we can get a distance-per-byte
+    # number for our score.
+    return score / blocksize / blockcount
+
+
 def xor_otp_best_guess(
         ciphertext: BinData,
         keys: Sequence[BinData],
