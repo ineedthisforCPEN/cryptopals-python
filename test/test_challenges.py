@@ -155,3 +155,25 @@ class TestSet1(object):
         assert plaintext.startswith(b"I'm back and I'm ringin' the bell \n")
         assert plaintext.endswith(b"\x04\x04\x04\x04")
 
+    def test_challenge8(self) -> None:
+        """Detect the line that was encrypted with AES in ECB mode."""
+        # The challenge here says that the same 16 byte plaintext block will
+        # always product the same 16 byte ciphertext, so we can assume that's
+        # what's happening in the ECB-encrypted hex string.
+        raw = read_challenge_data(8)
+        ciphertexts = [HexString(line.strip()) for line in raw.split()]
+
+        repeating = []
+        for ciphertext in ciphertexts:
+            blockrange = range(0, len(ciphertext), 16)
+            blocks = [ciphertext[i:i+16].to_bytes for i in blockrange]
+
+            repeats = len(blocks) - len(set(blocks))
+            repeating.append((repeats, ciphertext))
+
+        repeating.sort(key=lambda x: x[0])
+        ciphertext = repeating[0][1]
+
+        assert ciphertext[:8] == HexString("8A10247F90D0A055")
+        assert ciphertext[-8:] == HexString("78E803E1D995CE4D")
+
