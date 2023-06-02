@@ -32,11 +32,47 @@ class AesCipher(object):
         }[mode]
         self.cipher = Cipher(algorithms.AES(key), self.mode)
 
+    @staticmethod
+    def pkcs7(plaintext: bytes, blocksize: int = 16) -> bytes:
+        """Pad a sequence of bytes using the PKCS#7 padding method. The
+        length of the padded bytes will be divisible by blocksize.
+
+        Parameters:
+            plaintext   Data to pad
+            blocksize   Data block size
+
+        Returns:
+            Returns the padded plaintext as bytes.
+        """
+        if len(plaintext) == 0:
+            return bytes(blocksize * [blocksize])
+        if len(plaintext) % blocksize == 0:
+            return plaintext
+
+        remaining = blocksize - (len(plaintext) % blocksize)
+        return plaintext + bytes(remaining * [remaining])
+
     def decrypt(self, ciphertext: bytes) -> bytes:
+        """AES decryption method.
+
+        Parameters:
+            ciphertext  Encrypted bytes to decrypt
+
+        Returns:
+            Returns the decrypted data as bytes.
+        """
         decryptor = self.cipher.decryptor()
         return decryptor.update(ciphertext) + decryptor.finalize()
 
     def encrypt(self, plaintext: bytes) -> bytes:
+        """AES encryption method.
+
+        Parameters:
+            plaintext   Data to encrypt
+
+        Returns:
+            Returns the encrypted data as bytes.
+        """
         encryptor = self.cipher.encryptor()
         return encryptor.update(plaintext) + encryptor.finalize()
 

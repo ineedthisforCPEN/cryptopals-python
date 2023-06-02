@@ -177,3 +177,11 @@ class TestSet1(object):
         assert ciphertext[:8] == HexString("8A10247F90D0A055")
         assert ciphertext[-8:] == HexString("78E803E1D995CE4D")
 
+
+class TestSet2(object):
+    def test_challenge1(self) -> None:
+        plaintext = b"YELLOW SUBMARINE"
+        padded = plaintext + b"\x04\x04\x04\x04"
+
+        assert AesCipher.pkcs7(plaintext, 20) == padded
+
