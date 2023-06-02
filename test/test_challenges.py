@@ -12,6 +12,7 @@ import sys
 ROOTDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(ROOTDIR)
 
+from algorithms.aes import AesCipher
 from bindata import BinData, Base64String, HexString, String
 from evaluators import evaluate_english
 from utils import (
@@ -138,3 +139,19 @@ class TestSet1(object):
         assert encryption_key.to_string() == "Terminator X: Bring the noise"
         # Decrypted message is WAAAAAAY too long to check here. But if the
         # encryption key is correct, then the plaintext should be, too.
+
+    def test_challenge7(self) -> None:
+        """Decrypt the given base64 string that's been encrypted via
+        AES-128 in ECB mode with key 'YELLOW SUBMARINE'
+        """
+        raw = read_challenge_data(7).replace("\n", "")
+        ciphertext = Base64String(raw)
+
+        cipher = AesCipher(b"YELLOW SUBMARINE")
+        plaintext = cipher.decrypt(ciphertext.to_bytes())
+
+        # Full text is way too long to check, but if the first couple of
+        # characters are correct, then we likely did the decryption right.
+        assert plaintext.startswith(b"I'm back and I'm ringin' the bell \n")
+        assert plaintext.endswith(b"\x04\x04\x04\x04")
+
