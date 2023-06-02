@@ -56,9 +56,9 @@ class TestDataModelNumeric(object):
     def test_add(self, lhs: bytes, rhs: bytes, expected: bytes) -> None:
         left = BinData(lhs)
         right = BinData(rhs)
-        
+
         assert left + right == BinData(expected)
-    
+
     def test_iadd(self) -> None:
         bindata = BinData(b"")
         toadd = String("Hello, world!")
@@ -68,7 +68,7 @@ class TestDataModelNumeric(object):
 
             assert bindata[-1] == toadd[i]
             assert bindata == toadd[:i+1]
-        
+
         assert bindata == toadd
 
     @pytest.mark.parametrize("xor1, xor2, expected", [
